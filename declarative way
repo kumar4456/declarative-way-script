@@ -1,0 +1,48 @@
+pipeline {
+
+agent any
+
+tools{
+//Global Tool Configuration
+maven 'maven 3.8.6'
+}
+
+stages {
+
+//Get the Source Code
+stage ('CheckOutCode'){
+steps {git branch: 'development', credentialsId: '66405004-a8c2-4d4e-ac3e-bc2283e76fc2', url: 'https://github.com/kumar4456/maven-web-application.git'
+}
+}
+
+//Build
+stage ('Build'){
+steps {
+sh "mvn clean package"
+}
+}
+
+//Execute SonarQube Report
+stage ('ExecuteSonarQubeReport'){
+steps {
+sh "mvn sonar:sonar"
+}
+}
+//Upload Artifacts into Nexus Server
+stage ('UploadArtifactsIntoNexus'){
+steps {
+sh "mvn deploy"
+}
+}
+//Deploy App into Tomcat Server
+stage ('DeployAppIntoTomcatServer'){
+steps {
+     sshagent(['030aea76-8ff1-4e81-9e2d-4c5127b088ab']) {
+    sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.7.161:/opt/apache-tomcat-9.0.70/webapps/"
+
+}
+} //steps closing
+} //stage closing
+} //stages closing
+
+} //pipelone closing
