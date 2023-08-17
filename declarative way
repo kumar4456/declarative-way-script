@@ -1,6 +1,7 @@
 pipeline {
 
-agent any
+agent 
+ 
 
 tools{
 //Global Tool Configuration
